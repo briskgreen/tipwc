@@ -15,6 +15,11 @@ extern int ini_errno;
 #define INI_NODE_KEY -6
 #define INI_NODE_VALUE -7
 #define INI_NODE_NOT_FOUND -8
+#define INI_SBUF_NO_MEM -9
+#define INI_CREATE_FILE -10
+#define INI_OPEN_FILE -11
+#define INI_STRING_NO_MEM -12
+#define INI_READ_FILE -13
 
 void ini_perror(const char *msg);
 
