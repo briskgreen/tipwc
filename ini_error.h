@@ -20,6 +20,8 @@ extern int ini_errno;
 #define INI_OPEN_FILE -11
 #define INI_STRING_NO_MEM -12
 #define INI_READ_FILE -13
+#define INI_PARSE_NODE_ERROR -14
+#define INI_PARSE_KEY_ERROR -15
 
 void ini_perror(const char *msg);
 

@@ -40,6 +40,30 @@ char *ini_error(int errno)
 		case INI_NODE_VALUE:
 			msg="为节点中值开辟内存空间出错!";
 			break;
+		case INI_NODE_NOT_FOUND:
+			msg="未发现节点!";
+			break;
+		case INI_SBUF_NO_MEM:
+			msg="开辟内存出错!";
+			break;
+		case INI_CREATE_FILE:
+			msg="创建文件出错!";
+			break;
+		case INI_OPEN_FILE:
+			msg="打开文件出错!";
+			break;
+		case INI_STRING_NO_MEM:
+			msg="为文件开辟缓冲区出错!";
+			break;
+		case INI_READ_FILE:
+			msg="读取文件出错!";
+			break;
+		case INI_PARSE_NODE_ERROR:
+			msg="错误的节点!";
+			break;
+		case INI_PARSE_KEY_ERROR:
+			msg="错误的键!";
+			break;
 		default:
 			msg="未知错误!";
 	}
