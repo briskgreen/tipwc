@@ -25,7 +25,4 @@ int ini_build_to_file(INI *ini,const char *filename);
 //获取一个节点中键的数量
 int ini_get_talbe_num(INI *ini,const char *name);
 
-//设置注释字符
-void ini_set_comment(char comment);
-
 #endif

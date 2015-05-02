@@ -258,7 +258,6 @@ int _ini_get(SBUF *sbuf,char *buf,int len)
 	while(isspace(buf[len-1]))
 		--len;
 	buf[len]='\0';
-	//printf("%s\n",buf);
 
 	while(isspace(INI_POP))
 		INI_ADVANCE;
