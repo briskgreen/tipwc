@@ -100,7 +100,44 @@ INI *ini_parse(const char *string)
 }
 
 INI *ini_parse_with_filename(const char *filename)
-{}
+{
+	INI *ini;
+	char *string;
+	size_t len;
+	FILE *fp;
+
+	if(!(fp=fopen(filename,"rb")))
+	{
+		ini_errno=INI_OPEN_FILE;
+		return NULL;
+	}
+	fseek(fp,0L,SEEK_END);
+	len=ftell(fp);
+	rewind(fp);
+
+	string=(char *)malloc(sizeof(char)*(len+1));
+	if(string == NULL)
+	{
+		ini_errno=INI_STRING_NO_MEM;
+		fclose(fp);
+
+		return NULL;
+	}
+	if(fread(string,sizeof(char)*len,1,fp) != 1)
+	{
+		ini_errno=INI_READ_FILE;
+		fclose(fp);
+		free(string);
+
+		return NULL;
+	}
+	string[len]='\0';
+	fclose(fp);
+	ini=ini_parse(string);
+	free(string);
+
+	return ini;
+}
 
 int ini_build(INI *ini,const char **string)
 {
@@ -155,4 +192,21 @@ void ini_build_node(INI_NODE *node,SBUF *buf)
 		sbuf_append(buf,"%s = %s\n",node->key,node->value);
 		node=node->next;
 	}
+}
+
+int ini_get_table_num(INI *ini,const char *name)
+{
+	INI_TABLE *table;
+
+	table=ini->table;
+	while(table)
+	{
+		if(strcmp(table->name,name) == 0)
+			return table->count;
+
+		table=table->next;
+	}
+
+	ini_errno=INI_NO;
+	return -1;
 }
