@@ -16,10 +16,16 @@ INI *ini_parse_with_filename(const char *filename);
 //使用INI结构创建一个ini配置文件
 int ini_build(INI *ini,const char **string);
 
+//释放
+void ini_build_free(const char *string);
+
 //使用INI结构创建一个配置文件到磁盘
 int ini_build_to_file(INI *ini,const char *filename);
 
 //获取一个节点中键的数量
 int ini_get_talbe_num(INI *ini,const char *name);
+
+//设置注释字符
+void ini_set_comment(char comment);
 
 #endif

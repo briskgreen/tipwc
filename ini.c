@@ -6,7 +6,13 @@
 	return NULL;\
 }
 
+#define INI_POP *buf
+#define INI_ADVANCE ++buf
+#define INI_PUSH --buf
+
 void ini_build_node(INI_NODE *node,SBUF *buf);
+int _ini_parse_line(INI *ini,char *buf,SBUF *node,SBUF *str,SBUF *value);
+int _ini_get(SBUF *sbuf,char *buf,int len);
 
 INI *ini_parse(const char *string)
 {
@@ -17,7 +23,6 @@ INI *ini_parse(const char *string)
 	SBUF *value;
 	char *p;
 	int len;
-	int i;
 
 	ini=ini_new();
 	if(!ini) INI_ERROR_RETURN(INI_NO_MEM);
@@ -54,38 +59,13 @@ INI *ini_parse(const char *string)
 			continue;
 		}
 		sbuf_nappend(temp,len,"%s",string);
-
-		switch(temp->buf[0])
+		if(_ini_parse_line(ini,temp->buf,node,str,value) != INI_OK)
 		{
-			case '[':
-				sbuf_resert(node);
-				for(i=1;temp->buf[i] != ']';++i)
-					sbuf_append_chr(node,temp->buf[i]);
-
-				ini_table_add(ini,node->buf);
-				break;
-			case '#':
-			case ';':
-				break;
-			default:
-				{
-					char *p;
-					int len;
-					INI_NODE *n;
-
-					p=strchr(temp->buf,'=');
-					len=p-temp->buf;
-					sbuf_nappend(str,len,"%s",temp->buf);
-					++p;
-					//sbuf_resert(value);
-					sbuf_nappend(value,temp->len-len,"%s",p);
-					n=ini_node_new(str->buf,value->buf);
-					ini_node_add(ini->table,node->buf,n);
-				}
+			ini_free(ini);
+			break;
 		}
 
 		sbuf_resert(temp);
-		//sbuf_resert(node);
 		sbuf_resert(str);
 		sbuf_resert(value);
 		string+=len+1;
@@ -163,6 +143,11 @@ int ini_build(INI *ini,const char **string)
 	return INI_OK;
 }
 
+void ini_build_free(const char *string)
+{
+	free((void *)string);
+}
+
 int ini_build_to_file(INI *ini,const char *filename)
 {
 	int status;
@@ -179,7 +164,7 @@ int ini_build_to_file(INI *ini,const char *filename)
 		return status;
 	}
 	fwrite(res,sizeof(char)*strlen(res),1,fp);
-	free((void *)res);
+	ini_build_free(res);
 	fclose(fp);
 
 	return INI_OK;
@@ -189,7 +174,10 @@ void ini_build_node(INI_NODE *node,SBUF *buf)
 {
 	while(node)
 	{
-		sbuf_append(buf,"%s = %s\n",node->key,node->value);
+		if(node->value == NULL)
+			sbuf_append(buf,"%s =\n",node->key);
+		else
+			sbuf_append(buf,"%s = %s\n",node->key,node->value);
 		node=node->next;
 	}
 }
@@ -209,4 +197,102 @@ int ini_get_table_num(INI *ini,const char *name)
 
 	ini_errno=INI_NO;
 	return -1;
+}
+
+int _ini_parse_line(INI *ini,char *buf,SBUF *node,SBUF *str,SBUF *value)
+{
+	char *p;
+	INI_NODE *n;
+
+	while(INI_POP)
+	{
+		switch(INI_POP)
+		{
+			case '[':
+				sbuf_resert(node);
+				p=strchr(buf,']');
+				if(p == NULL)
+				{
+					ini_errno=INI_PARSE_NODE_ERROR;
+					return INI_NO;
+				}
+				sbuf_nappend(node,p-buf-1,"%s",buf+1);
+				if(ini_table_add(ini,node->buf) != INI_OK) return INI_NO;
+				return INI_OK;
+			case ';':
+				return INI_OK;
+			default:
+				while(isspace(INI_POP))
+					INI_ADVANCE;
+				if(!INI_POP) break;
+
+				p=strchr(buf,'=');
+				if(p == NULL || p == buf)
+				{
+					ini_errno=INI_PARSE_KEY_ERROR;
+					return INI_NO;
+				}
+				if(_ini_get(str,buf,p-buf) != INI_OK)
+				{
+					ini_errno=INI_PARSE_KEY_ERROR;
+					return INI_NO;
+				}
+				if(_ini_get(value,p+1,-1) != INI_OK)
+					n=ini_node_new(str->buf,NULL);
+				else
+					n=ini_node_new(str->buf,value->buf);
+				if(n == NULL) return INI_NO;
+				if(ini_node_add(ini->table,node->buf,n) != INI_OK) return INI_NO;
+
+				return INI_OK;
+		}
+	}
+
+	return INI_OK;
+}
+
+int _ini_get(SBUF *sbuf,char *buf,int len)
+{
+	if(len == -1)
+		len=strlen(buf);
+	while(isspace(buf[len-1]))
+		--len;
+	buf[len]='\0';
+	//printf("%s\n",buf);
+
+	while(isspace(INI_POP))
+		INI_ADVANCE;
+	if(!INI_POP) return INI_NO;
+
+	while(INI_POP)
+	{
+		switch(INI_POP)
+		{
+			case '\\':
+				INI_ADVANCE;
+				if(!INI_POP) return INI_NO;
+				switch(INI_POP)
+				{
+					case 'n':
+						sbuf_append_chr(sbuf,'\n');
+						break;
+					case 'r':
+						sbuf_append_chr(sbuf,'\r');
+						break;
+					case 't':
+						sbuf_append_chr(sbuf,'\t');
+						break;
+					default:
+						sbuf_append_chr(sbuf,INI_POP);
+				}
+				break;
+			default:
+				sbuf_append_chr(sbuf,INI_POP);
+				break;
+		}
+
+		INI_ADVANCE;
+	}
+
+	return INI_OK;
 }
