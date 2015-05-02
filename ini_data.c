@@ -59,11 +59,16 @@ INI_NODE *ini_node_new(const char *key,const char *value)
 		ini_errno=INI_NODE_KEY;
 		return NULL;
 	}
-	node->value=strdup(value);
-	if(!node->value)
+	if(value == NULL)
+		node->value=NULL;
+	else
 	{
-		ini_errno=INI_NODE_VALUE;
-		return NULL;
+		node->value=strdup(value);
+		if(!node->value)
+		{
+			ini_errno=INI_NODE_VALUE;
+			return NULL;
+		}
 	}
 	node->next=NULL;
 
@@ -254,8 +259,10 @@ void ini_node_free(INI_NODE *node)
 			temp=node;
 			node=node->next;
 
-			free(temp->key);
-			free(temp->value);
+			if(temp->key)
+				free(temp->key);
+			if(temp->value)
+				free(temp->value);
 			free(temp);
 		}
 	}
