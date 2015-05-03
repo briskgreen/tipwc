@@ -41,7 +41,7 @@ char *ini_error(int errno)
 			msg="为节点中值开辟内存空间出错!";
 			break;
 		case INI_NODE_NOT_FOUND:
-			msg="未发现节点!";
+			msg="未发现参数!";
 			break;
 		case INI_SBUF_NO_MEM:
 			msg="开辟内存出错!";
@@ -63,6 +63,9 @@ char *ini_error(int errno)
 			break;
 		case INI_PARSE_KEY_ERROR:
 			msg="错误的键!";
+			break;
+		case INI_TABLE_NOT_FOUND:
+			msg="未发现节点!";
 			break;
 		default:
 			msg="未知错误!";

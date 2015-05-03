@@ -22,6 +22,7 @@ extern int ini_errno;
 #define INI_READ_FILE -13
 #define INI_PARSE_NODE_ERROR -14
 #define INI_PARSE_KEY_ERROR -15
+#define INI_TABLE_NOT_FOUND -16
 
 void ini_perror(const char *msg);
 

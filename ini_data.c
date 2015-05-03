@@ -320,3 +320,112 @@ char *ini_table_get_key_value(INI_TABLE *table,const char *name,const char *key)
 
 	return NULL;
 }
+
+int ini_table_set_name(INI_TABLE *table,const char *name,
+		const char *new_name)
+{
+	if(!table) return INI_NO;
+
+	while(table)
+	{
+		if(strcmp(table->name,name) == 0)
+		{
+			free(table->name);
+			table->name=strdup(new_name);
+			if(!table->name) return INI_TABLE_NO_MEM;
+
+			return INI_OK;
+		}
+
+		table=table->next;
+	}
+
+	return INI_TABLE_NOT_FOUND;
+}
+
+int ini_node_set_key(INI_TABLE *table,const char *name,
+		const char *key,const char *new_key)
+{
+	INI_NODE *node;
+
+	if(!table) return INI_NO;
+	while(table)
+	{
+		if(strcmp(table->name,name) == 0)
+			break;
+
+		table=table->next;
+	}
+
+	if(!table) return INI_TABLE_NOT_FOUND;
+	node=table->node;
+	if(!node) return INI_NODE_NOT_FOUND;
+	while(node)
+	{
+		if(strcmp(node->key,key) == 0)
+		{
+			free(node->key);
+			node->key=strdup(new_key);
+			if(node->key == NULL) return INI_NODE_KEY;
+
+			return INI_OK;
+		}
+
+		node=node->next;
+	}
+
+	return INI_NODE_NOT_FOUND;
+}
+
+int ini_node_set_value(INI_TABLE *table,const char *name,
+		const char *key,const char *new_value)
+{
+	INI_NODE *node;
+
+	if(!table) return INI_NO;
+	while(table)
+	{
+		if(strcmp(table->name,name) == 0)
+			break;
+
+		table=table->next;
+	}
+
+	if(!table) return INI_TABLE_NOT_FOUND;
+	node=table->node;
+	if(!node) return INI_NODE_NOT_FOUND;
+	while(node)
+	{
+		if(strcmp(node->key,key) == 0)
+		{
+			if(node->value)
+				free(node->value);
+
+			if(new_value == NULL)
+			{
+				node->value=NULL;
+				return INI_OK;
+			}
+
+			node->value=strdup(new_value);
+			if(!node->value) return INI_NODE_VALUE;
+
+			return INI_OK;
+		}
+
+		node=node->next;
+	}
+
+	return INI_NODE_NOT_FOUND;
+}
+
+int ini_node_set(INI_TABLE *table,const char *name,
+		const char *key,const char *new_key,
+		const char *new_value)
+{
+	int status;
+
+	status=ini_node_set_value(table,name,key,new_value);
+	if(status != INI_OK) return status;
+	return ini_node_set_key(table,name,key,new_key);
+}

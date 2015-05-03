@@ -85,4 +85,21 @@ void ini_free(INI *ini);
 //获取一个表name中节点key的值
 char *ini_table_get_key_value(INI_TABLE *table,const char *name,const char *key);
 
+//修改表名
+int ini_table_set_name(INI_TABLE *table,const char *name,
+		const char *new_name);
+
+//修改键名
+int ini_node_set_key(INI_TABLE *table,const char *name,
+		const char *key,const char *new_key);
+
+//修改键值
+int ini_node_set_value(INI_TABLE *table,const char *name,
+		const char *key,const char *new_value);
+
+//修改整个键值对
+int ini_node_set(INI_TABLE *table,const char *name,
+		const char *key,const char *new_key,
+		const char *new_value);
+
 #endif
