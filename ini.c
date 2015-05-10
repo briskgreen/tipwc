@@ -204,6 +204,9 @@ int _ini_parse_line(INI *ini,char *buf,SBUF *node,SBUF *str,SBUF *value)
 	char *p;
 	INI_NODE *n;
 
+	while(isspace(INI_POP))
+		INI_ADVANCE;
+
 	while(INI_POP)
 	{
 		switch(INI_POP)
@@ -222,10 +225,6 @@ int _ini_parse_line(INI *ini,char *buf,SBUF *node,SBUF *str,SBUF *value)
 			case ';':
 				return INI_OK;
 			default:
-				while(isspace(INI_POP))
-					INI_ADVANCE;
-				if(!INI_POP) break;
-
 				p=strchr(buf,'=');
 				if(p == NULL || p == buf)
 				{
