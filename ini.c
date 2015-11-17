@@ -65,9 +65,9 @@ INI *ini_parse(const char *string)
 			break;
 		}
 
-		sbuf_resert(temp);
-		sbuf_resert(str);
-		sbuf_resert(value);
+		sbuf_reset(temp);
+		sbuf_reset(str);
+		sbuf_reset(value);
 		string+=len+1;
 	}
 
@@ -212,7 +212,7 @@ int _ini_parse_line(INI *ini,char *buf,SBUF *node,SBUF *str,SBUF *value)
 		switch(INI_POP)
 		{
 			case '[':
-				sbuf_resert(node);
+				sbuf_reset(node);
 				p=strchr(buf,']');
 				if(p == NULL)
 				{
