@@ -7,7 +7,7 @@ void ini_perror(const char *msg)
 	if(msg == NULL)
 		printf("%s\n",ini_error(ini_errno));
 	else
-		printf("%s: %s\n",ini_error(ini_errno));
+		printf("%s: %s\n",ini_error(ini_errno),msg);
 }
 
 char *ini_error(int errno)
