@@ -11,13 +11,13 @@ libtipwc.so:ini.o ini_data.o ini_error.o
 	cp libtipwc.so lib/
 
 ini.o:ini.c ini.h ini_data.h
-	gcc -O2 -c ini.c
+	gcc -O2 -c ini.c -shared -fPIC
 
 ini_data.o:ini_data.h ini_data.c ini_error.h
-	gcc -O2 -c ini_data.c
+	gcc -O2 -c ini_data.c -shared -fPIC
 
 ini_error.o:ini_error.h ini_error.c
-	gcc -O2 -c ini_error.c
+	gcc -O2 -c ini_error.c -shared -fPIC
 
 clean:
 	rm -rfv include lib *.a *.o *.so

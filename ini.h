@@ -2,6 +2,7 @@
 #define _INI_H
 
 #include "ini_data.h"
+#include <ctype.h>
 #include <sbuf.h>
 
 //获取一个节点中的一个值
